@@ -52,6 +52,25 @@ function drawRects(sentiment) {
     svg.selectAll("path").remove();
     svg.selectAll("g").remove();
     svg.selectAll("text").remove();
+
+        // Create tooltip div selection
+        var tooltip = d3.select("#tooltip");
+
+        // Define mouseover, mousemove, and mouseout functions
+        function mouseover(event, d) {
+            tooltip.style("opacity", 1);
+        }
+    
+        function mousemove(event, d) {
+            tooltip
+                .html("Likes: " + d.likes + "<br/>Day: " + d.day.substring(5))
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        }
+    
+        function mouseout(event, d) {
+            tooltip.style("opacity", 0);
+        }
     
 
     var x = d3.scaleBand()
@@ -92,8 +111,12 @@ function drawRects(sentiment) {
             .attr("class", "dtCircle")
             .attr("cx", d => x(d.day.substring(5)) + Padding.LEFT / 8)
             .attr("cy", d => y(d.likes))
-            .attr("r", d => 3)
-            .attr("fill", d => "red");
+            .attr("r", d => 5)
+            .attr("fill", d => "red")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseout", mouseout);
+
 
     svg.selectAll(".jbCircle")
             .data(jbData)
@@ -101,8 +124,11 @@ function drawRects(sentiment) {
                 .attr("class", "jbCircle")
                 .attr("cx", d => x(d.day.substring(5)) + Padding.LEFT / 8)
                 .attr("cy", d => y(d.likes))
-                .attr("r", d => 3)
-                .attr("fill", d => "blue");
+                .attr("r", d => 5)
+                .attr("fill", d => "blue")
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseout", mouseout);
 
     const xAxis = svg.append("g")
         .call(d3.axisBottom(x)) // creates a bunch of elements inside the <g>

@@ -18,6 +18,8 @@
   
   <main>
     <div class="visualization-container">
+      <div id="tooltip" class="tooltip" style="opacity: 0;"></div>
+
       <svg width="1000" height="700"></svg>
     </div>
     <div class="content">
@@ -25,6 +27,17 @@
       <label for="parameter-select">Choose a parameter:</label>
       <select id="parameter-select"  name="parameters" id="tooltip">
       </select>
+      <h5 class="reference">Color reference:</h5>
+      <div class="legend">
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: red;"></span>
+          <span class="legend-text">Donald Trump</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background-color: blue;"></span>
+          <span class="legend-text">Joe Biden</span>
+        </div>
+      </div>
     </div>
     
   </main>
