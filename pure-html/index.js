@@ -3,26 +3,144 @@
  */
 "use strict";
 
-const data = [
-    {x: 10, y: 30, r: 10, color: "red"},
-    {x: 50, y: 30, r: 20, color: "green"},
-    {x: 110, y: 30, r: 30, color: "blue"}
-];
-
+const labels = ["Negative", "Neutral", "Positive"]
 /*
  * Why this line? Because if this script runs before the svg exists, then nothing will happen, and d3 won't even
  * complain.  This delays drawing until the entire DOM has loaded.
  */
-window.addEventListener("load", drawCircles);
 
-function drawCircles() {
+window.addEventListener("load", function() {
+    drawRects(0); // Call drawRects with index 0 for "Negative"
+    populateDropdown();
+});
+
+function populateDropdown() {
+    const select = d3.select("select");
+
+    select.on("change", changeEvent => {
+        // Runs when the dropdown is changed
+        console.log(changeEvent.target.selectedIndex); // The newly selected index
+        drawRects(changeEvent.target.selectedIndex)
+    })
+    .selectAll("option")
+    .data(labels)
+    .enter()
+    .append("option")
+    .attr("value", (d, i) => i)
+    .text(d => d)
+    .property("selected", (d, i) => i === 0); // Set Negative as default
+}
+
+function updateTooltipPosition(mouseEvent) {
+    const offsetX = 25;
+    const offsetY = 100;
+
+    const svgCoords = d3.pointer(mouseEvent);
+
+    return {left: (svgCoords[0] + offsetX) + 'px', top: (svgCoords[1] + offsetY) + 'px'}
+}
+
+function drawRects(sentiment) {
     // d3 has been added to the html in a <script> tag so referencing it here should work.
-    const svg = d3.select("svg");
-    svg.selectAll("circle")
-        .data(data)
+    // scaleBand API --> https://github.com/d3/d3-scale/blob/master/README.md#band-scales
+
+    var dtData = dt_tweet.filter(d => d.sentiment === (sentiment - 1));
+    var jbData = jb_tweet.filter(d => d.sentiment === (sentiment - 1));
+
+    const Padding = {TOP: 10, LEFT: 100, RIGHT: 50, BOTTOM: 20};
+    var svg = d3.select("svg");
+    svg.selectAll("path").remove();
+    svg.selectAll("g").remove();
+    svg.selectAll("text").remove();
+
+        // Create tooltip div selection
+        var tooltip = d3.select("#tooltip");
+
+        // Define mouseover, mousemove, and mouseout functions
+        function mouseover(event, d) {
+            tooltip.style("opacity", 1);
+        }
+    
+        function mousemove(event, d) {
+            tooltip
+                .html("Likes: " + d.likes + "<br/>Day: " + d.day.substring(5))
+                .style("left", (event.pageX) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        }
+    
+        function mouseout(event, d) {
+            tooltip.style("opacity", 0);
+        }
+    
+
+    var x = d3.scaleBand()
+        .domain(dtData.map(d => d.day.substring(5)))
+        .range([0 + Padding.LEFT, svg.attr("width") - Padding.RIGHT]) // TODO
+        .padding(.25); // TODO experiment and choose a number between 0 and 1
+    
+    var y = d3.scaleLinear()
+        .domain([0, d3.max(dtData, d => Math.max(d.likes, d3.max(jbData, d => d.likes)))])
+        .range([svg.attr("height") - Padding.BOTTOM, 0 + Padding.TOP]);
+    
+    var line1 = d3.line()
+        .x(function(d) { return x(d.day.substring(5)) + x.bandwidth() / 2; })
+        .y(function(d) { return y(d.likes); });
+
+    var line2 = d3.line()
+        .x(function(d) { return x(d.day.substring(5)) + x.bandwidth() / 2; })
+        .y(function(d) { return y(d.likes); });
+    svg.append("path")
+        .datum(dtData)
+        .attr("fill", "none")
+        .attr("stroke", "red")
+        .attr("stroke-width", 2)
+        .attr("opacity", .25)
+        .attr("d", line1);   
+    
+    svg.append("path")
+        .datum(jbData)
+        .attr("fill", "none")
+        .attr("stroke", "blue")
+        .attr("stroke-width", 2)
+        .attr("opacity", .25)
+        .attr("d", line2);   
+
+    svg.selectAll(".dtCircle")
+        .data(dtData)
         .join("circle")
-            .attr("cx", d => d.x)
-            .attr("cy", d => d.y)
-            .attr("r", d => d.r)
-            .attr("fill", d => d.color);
+            .attr("class", "dtCircle")
+            .attr("cx", d => x(d.day.substring(5)) + Padding.LEFT / 8)
+            .attr("cy", d => y(d.likes))
+            .attr("r", d => 5)
+            .attr("fill", d => "red")
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseout", mouseout);
+
+
+    svg.selectAll(".jbCircle")
+            .data(jbData)
+            .join("circle")
+                .attr("class", "jbCircle")
+                .attr("cx", d => x(d.day.substring(5)) + Padding.LEFT / 8)
+                .attr("cy", d => y(d.likes))
+                .attr("r", d => 5)
+                .attr("fill", d => "blue")
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseout", mouseout);
+
+    const xAxis = svg.append("g")
+        .call(d3.axisBottom(x)) // creates a bunch of elements inside the <g>
+        .attr("transform", `translate(0, ${svg.attr("height") - Padding.BOTTOM})`); // TODO yTranslation
+    const yAxis = svg.append("g")
+        .call(d3.axisLeft(y))
+        .attr("transform", `translate(${Padding.LEFT}, 0)`); // TODO xTranslation
+
+    svg.append("text")
+        .attr("font-size", 12) // This code duplication signals that these properties
+        .attr("font-weight", "bold") // should be moved to CSS. For now, the code is here
+        .attr("font-family", "sans-serif") // to simplify our directions to you.
+        .attr("transform", `translate(${Padding.LEFT / 2} ${(svg.attr("height")) / 2 + Padding.BOTTOM}) rotate(-90)`)
+        .text("Total Likes");
 }
