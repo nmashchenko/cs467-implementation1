@@ -2,11 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>D3 starter template</title>
+  <title>Political Landscape 2020</title>
   <meta name="description" content="D3 starter template">
   <meta name="author" content="">
   <link rel="stylesheet" href="index.css">
   <link rel="stylesheet" href="reset.css">
+  <script src="dt_tweet.js"></script>
+  <script src="jb_tweet.js"></script>
 </head>
 
 <body>
@@ -16,16 +18,12 @@
   
   <main>
     <div class="visualization-container">
-      <!-- brandon here is your visualization -->
-      <svg width="300" height="100"></svg>
+      <svg width="1000" height="700"></svg>
     </div>
     <div class="content">
-      <p>This is an overview of Trump vs. Biden support comparison in 2020. You can choose different parameters like sentiment for both presidents, etc.</p>
+      <p>This is an overview of Trump vs. Biden support comparison in 2020. You can choose different parameters like negative, positive or neutral.</p>
       <label for="parameter-select">Choose a parameter:</label>
-      <select id="parameter-select" name="parameters">
-        <option value="sentiment">Sentiment</option>
-        <option value="state">State</option>
-        <option value="retweets">Retweets</option>
+      <select id="parameter-select"  name="parameters" id="tooltip">
       </select>
     </div>
     
