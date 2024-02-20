@@ -75,6 +75,7 @@ function drawRects(sentiment) {
         .attr("fill", "none")
         .attr("stroke", "red")
         .attr("stroke-width", 2)
+        .attr("opacity", .25)
         .attr("d", line1);   
     
     svg.append("path")
@@ -82,7 +83,26 @@ function drawRects(sentiment) {
         .attr("fill", "none")
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
+        .attr("opacity", .25)
         .attr("d", line2);   
+
+    svg.selectAll(".dtCircle")
+        .data(dtData)
+        .join("circle")
+            .attr("class", "dtCircle")
+            .attr("cx", d => x(d.day.substring(5)) + Padding.LEFT / 8)
+            .attr("cy", d => y(d.likes))
+            .attr("r", d => 3)
+            .attr("fill", d => "red");
+
+    svg.selectAll(".jbCircle")
+            .data(jbData)
+            .join("circle")
+                .attr("class", "jbCircle")
+                .attr("cx", d => x(d.day.substring(5)) + Padding.LEFT / 8)
+                .attr("cy", d => y(d.likes))
+                .attr("r", d => 3)
+                .attr("fill", d => "blue");
 
     const xAxis = svg.append("g")
         .call(d3.axisBottom(x)) // creates a bunch of elements inside the <g>
