@@ -1,5 +1,12 @@
-# D3 starter templates
-Download the the folder(s) of your choice. There is no wrong choice. Each folder has its own README -- don't forget to read that!
+# Implementation 1
 
-* `pure-html`: Just pure HTML, CSS, and Javascript.  *Best if you want to keep things really simple or if you're a beginner in web development.*
-* `lightweight-build`: A lightweight Snowpack build system.  Requires a NodeJS installation.  *Best if you want to use packages from npm.*
+- `pure-html`: Just pure HTML, CSS, and Javascript.
+
+## Steps to run:
+
+```
+1. clone this repo
+2. install Live Server VS code extension
+3. enter index.html file under pure-html
+4. click "Go Live"
+```
